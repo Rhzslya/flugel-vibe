@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { inter } from "@/utils/fonts";
 import Footer from "@/components/Footer";
-
+import AuthProviders from "@/components/ClientWrapper";
+import Navbar from "@/components/Navbar";
 // Mendefinisikan font Poppins dan Lora
 
 export const metadata: Metadata = {
@@ -19,8 +20,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased text-[#F4D793]`}>
-        {children}
-        <Footer />
+        <AuthProviders>
+          <Navbar />
+          {children}
+          <Footer />
+        </AuthProviders>
       </body>
     </html>
   );

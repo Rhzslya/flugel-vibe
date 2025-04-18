@@ -1,6 +1,5 @@
-// app/api/auth/[...nextauth]/route.ts (Next.js App Router)
-
-import NextAuth, { NextAuthOptions } from "next-auth";
+// src/lib/auth.ts
+import { NextAuthOptions } from "next-auth";
 import SpotifyProvider from "next-auth/providers/spotify";
 
 const scopes = [
@@ -9,7 +8,7 @@ const scopes = [
   "playlist-modify-private",
 ].join(",");
 
-const SPOTIFY_AUTH_URL = `https://accounts.spotify.com/authorize?scope=${scopes}`;
+const SPOTIFY_AUTH_URL = `https://accounts.spotify.com/authorize?scope=${scopes}&show_dialog=true`;
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -21,7 +20,6 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, account }) {
-      // Saat pertama kali login
       if (account) {
         token.accessToken = account.access_token;
         token.refreshToken = account.refresh_token;
@@ -30,16 +28,12 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      // Tambahkan token ke session agar bisa digunakan di client
       session.accessToken = token.accessToken as string;
       session.refreshToken = token.refreshToken as string;
       return session;
     },
   },
   pages: {
-    signIn: "/login", // optional: custom login page
+    signIn: "/", // atau "/login" jika kamu punya halaman login custom
   },
 };
-
-const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };
