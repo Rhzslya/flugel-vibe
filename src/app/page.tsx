@@ -3,11 +3,16 @@
 import { slideInFromLeft, fadeIn, popIn } from "@/utils/FramerMotionStyle";
 import { SpotifyIcon } from "@/utils/Icons";
 import { motion } from "framer-motion";
-import { useSession, signIn } from "next-auth/react";
+import { useSession, signIn, signOut } from "next-auth/react";
+import { useEffect } from "react";
 
 export default function Home() {
   const { data: session } = useSession();
-
+  useEffect(() => {
+    if (session && !session.accessToken) {
+      signOut();
+    }
+  }, [session]);
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-2 sm:px-4 md:px-6 text-center">
       {session && (

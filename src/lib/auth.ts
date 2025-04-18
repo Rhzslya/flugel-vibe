@@ -18,16 +18,31 @@ export const authOptions: NextAuthOptions = {
       authorization: SPOTIFY_AUTH_URL,
     }),
   ],
+  session: {
+    strategy: "jwt",
+    maxAge: 24 * 24 * 60,
+    updateAge: 0,
+  },
   callbacks: {
     async jwt({ token, account }) {
       if (account) {
         token.accessToken = account.access_token;
         token.refreshToken = account.refresh_token;
         token.expires_at = account.expires_at;
+        token.createdAt = Math.floor(Date.now() / 1000);
+      }
+      const now = Math.floor(Date.now() / 1000);
+      if (
+        typeof token.createdAt === "number" &&
+        now - token.createdAt > 86400
+      ) {
+        return {};
       }
       return token;
     },
     async session({ session, token }) {
+      if (!token.accessToken) return session;
+
       session.accessToken = token.accessToken as string;
       session.refreshToken = token.refreshToken as string;
       return session;
