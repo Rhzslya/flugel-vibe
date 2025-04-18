@@ -1,5 +1,6 @@
 "use client";
 
+import NowPlaying from "@/components/NowPlaying";
 import { slideInFromLeft, fadeIn, popIn } from "@/utils/FramerMotionStyle";
 import { SpotifyIcon } from "@/utils/Icons";
 import { motion } from "framer-motion";
@@ -74,6 +75,7 @@ export default function Home() {
           <SpotifyIcon size={30} />
         </motion.button>
       )}
+      <NowPlaying />
     </main>
   );
 }

@@ -6,6 +6,8 @@ const scopes = [
   "user-read-email",
   "playlist-modify-public",
   "playlist-modify-private",
+  "user-read-playback-state",
+  "user-read-currently-playing",
 ].join(",");
 
 const SPOTIFY_AUTH_URL = `https://accounts.spotify.com/authorize?scope=${scopes}&show_dialog=true`;
@@ -25,13 +27,14 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, account }) {
+      const now = Math.floor(Date.now() / 1000);
       if (account) {
         token.accessToken = account.access_token;
         token.refreshToken = account.refresh_token;
         token.expires_at = account.expires_at;
         token.createdAt = Math.floor(Date.now() / 1000);
       }
-      const now = Math.floor(Date.now() / 1000);
+
       if (
         typeof token.createdAt === "number" &&
         now - token.createdAt > 86400
