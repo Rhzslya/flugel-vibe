@@ -57,7 +57,7 @@ export default function Home() {
           </motion.div>
         ))}
       </div>
-      {!session && (
+      {!session ? (
         <motion.button
           className="mt-10 cursor-pointer bg-gradient-to-r from-[#1ED760] to-[#1DB954] hover:brightness-110 transition-colors duration-300 px-4 md:px-6 py-3 rounded-lg text-white text-sm md:text-base font-bold flex items-center gap-2 shadow-md"
           initial="hidden"
@@ -74,8 +74,9 @@ export default function Home() {
           Connect with Spotify
           <SpotifyIcon size={30} />
         </motion.button>
+      ) : (
+        <NowPlaying />
       )}
-      <NowPlaying />
     </main>
   );
 }

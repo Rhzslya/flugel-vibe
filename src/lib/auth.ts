@@ -1,6 +1,7 @@
 // src/lib/auth.ts
 import { NextAuthOptions } from "next-auth";
 import SpotifyProvider from "next-auth/providers/spotify";
+import { refreshAccessToken } from "./refreshToken";
 
 const scopes = [
   "user-read-email",
@@ -28,19 +29,20 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, account }) {
       const now = Math.floor(Date.now() / 1000);
+
       if (account) {
-        token.accessToken = account.access_token;
-        token.refreshToken = account.refresh_token;
-        token.expires_at = account.expires_at;
-        token.createdAt = Math.floor(Date.now() / 1000);
+        return {
+          ...token,
+          accessToken: account.access_token,
+          refreshToken: account.refresh_token,
+          expires_at: account.expires_at,
+        };
       }
 
-      if (
-        typeof token.createdAt === "number" &&
-        now - token.createdAt > 86400
-      ) {
-        return {};
+      if (typeof token.expires_at === "number" && now >= token.expires_at) {
+        return await refreshAccessToken(token);
       }
+
       return token;
     },
     async session({ session, token }) {
@@ -52,6 +54,6 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: {
-    signIn: "/", // atau "/login" jika kamu punya halaman login custom
+    signIn: "/",
   },
 };

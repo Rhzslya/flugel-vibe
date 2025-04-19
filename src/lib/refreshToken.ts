@@ -6,7 +6,7 @@ export async function refreshAccessToken(token: JWT): Promise<JWT> {
       `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`
     ).toString("base64");
 
-    const res = await fetch("https://accounts.spotify.com/api/token", {
+    const response = await fetch("https://accounts.spotify.com/api/token", {
       method: "POST",
       headers: {
         Authorization: `Basic ${basicAuth}`,
@@ -18,18 +18,18 @@ export async function refreshAccessToken(token: JWT): Promise<JWT> {
       }),
     });
 
-    const refreshedTokens = await res.json();
+    const refreshedTokens = await response.json();
 
-    if (!res.ok) throw refreshedTokens;
+    if (!response.ok) throw refreshedTokens;
 
     return {
       ...token,
       accessToken: refreshedTokens.access_token,
-      expires_at: Math.floor(Date.now() / 1000) + refreshedTokens.expires_in,
+      expires_at: Math.floor(Date.now() / 1000 + refreshedTokens.expires_in),
       refreshToken: refreshedTokens.refresh_token ?? token.refreshToken,
     };
   } catch (error) {
-    console.error("Error refreshing access token:", error);
+    console.error("Error refreshing access token", error);
     return {
       ...token,
       error: "RefreshAccessTokenError",
