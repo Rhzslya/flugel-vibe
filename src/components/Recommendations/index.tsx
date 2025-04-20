@@ -23,7 +23,9 @@ const Recommendations: React.FC<RecommendationsProps> = ({
   const [recommendations, setRecommendations] = useState<
     SpotifyRecommendationTrack[]
   >([]);
-  const [selectedGenre, setSelectedGenre] = useState<string>(genres[0]);
+  const [selectedGenre, setSelectedGenre] = useState<string>(
+    genres && genres.length > 0 ? genres[0] : ""
+  );
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,7 +47,6 @@ const Recommendations: React.FC<RecommendationsProps> = ({
 
         if (res.ok) {
           const data = await res.json();
-          console.log(data);
           setRecommendations(data.tracks.items); // Access the correct track data
         } else {
           setError("Failed to fetch recommendations");

@@ -14,6 +14,7 @@ export default function Home() {
       signOut();
     }
   }, [session]);
+
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-2 sm:px-4 md:px-6 text-center">
       {session && (
