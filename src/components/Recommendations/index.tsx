@@ -5,7 +5,7 @@ import { capitalizeFirst } from "@/utils/Capitalize";
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { popIn } from "@/utils/FramerMotionStyle";
-import CardPlaylist from "../CardPlaylist";
+import { BentoProject } from "../BentoPlaylist";
 
 type RecommendationsProps = {
   artistId: string;
@@ -87,18 +87,7 @@ const Recommendations: React.FC<RecommendationsProps> = ({
 
       {loading && <p>Loading recommendations...</p>}
       {error && <p>{error}</p>}
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-6">
-        {recommendations.map((track) => (
-          <CardPlaylist
-            key={track.id}
-            imageUrl={track.album?.images?.[0]?.url || "/fallback.jpg"}
-            title={track.name}
-            artist={track.artists?.[0]?.name || "Unknown Artist"}
-            previewUrl={track.preview_url}
-          />
-        ))}
-      </div>
+      <BentoProject recommendations={recommendations} />
     </div>
   );
 };

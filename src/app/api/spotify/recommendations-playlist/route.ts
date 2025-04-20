@@ -19,8 +19,6 @@ export async function GET(req: NextRequest) {
   const trackId = searchParams.get("seed_track");
   const genres = searchParams.get("seed_genres");
 
-  console.log(genres);
-
   if (!artistId || !trackId || !genres) {
     return NextResponse.json(
       { message: "Missing required query parameters." },
