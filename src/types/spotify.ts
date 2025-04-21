@@ -10,6 +10,7 @@ export type SpotifyTrack = {
     };
     artists: {
       name: string;
+      id: string;
     }[];
   };
   actions: {

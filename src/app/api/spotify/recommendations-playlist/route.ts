@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
 
   if (!artistId || !trackId || !genres) {
     return NextResponse.json(
-      { message: "Missing required query parameters." },
+      { message: "Missing required query parameters.", data: [] },
       { status: 400 }
     );
   }
@@ -38,5 +38,12 @@ export async function GET(req: NextRequest) {
   );
 
   const data = await res.json();
-  return NextResponse.json(data);
+  return NextResponse.json(
+    {
+      success: true,
+      message: "Recommendations fetched successfully",
+      data: data,
+    },
+    { status: 200 }
+  );
 }

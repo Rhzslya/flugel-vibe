@@ -2,36 +2,27 @@
 
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion"; // Import motion
+import { motion } from "framer-motion";
 import PlayingTracks from "../PlayingTracks";
-import { SpotifyTrack } from "@/types/spotify";
-import Recommendations from "../Recommendations";
+import { SpotifyRecommendationTrack, SpotifyTrack } from "@/types/spotify";
+import { BentoPlaylist } from "../BentoPlaylist";
 
 export default function NowPlaying() {
   const { data: session, status } = useSession();
 
   const [track, setTrack] = useState<SpotifyTrack | null>(null);
+  const [genres, setGenres] = useState([""]);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [genres, setGenres] = useState<string[]>([]);
-  const [artistId, setArtistId] = useState("");
-  const [trackId, setTrackId] = useState("");
+  const [recommendations, setRecommendations] = useState<
+    SpotifyRecommendationTrack[]
+  >([]);
+  console.log(errorMessage);
 
   useEffect(() => {
-    if (status !== "authenticated") {
-      setIsLoading(false);
-      setTrack(null);
-      return;
-    }
-    const fetchTrack = async () => {
-      if (!session) return;
-      if (!session.accessToken) {
-        setTrack(null);
-        setErrorMessage("");
-        setIsLoading(false);
-        return;
-      }
+    if (status !== "authenticated" || !session?.accessToken) return;
 
+    const interval = setInterval(async () => {
       try {
         const res = await fetch("/api/spotify/currently-playing", {
           headers: {
@@ -41,8 +32,9 @@ export default function NowPlaying() {
 
         const data = await res.json();
 
-        if (res.ok && data.item?.artists?.length > 0) {
+        if (res.ok && data?.item?.id !== track?.item?.id) {
           const artistId = data.item.artists[0].id;
+          const trackid = data.item.id;
 
           const genreRes = await fetch(
             `/api/spotify/genres?artistId=${artistId}`,
@@ -55,28 +47,38 @@ export default function NowPlaying() {
 
           const genreData = await genreRes.json();
           setGenres(genreData.genres);
-          setArtistId(artistId);
-        }
-
-        if (res.ok) {
           setTrack(data as SpotifyTrack);
-          setTrackId(data.item?.id);
+
+          const recommendationsRes = await fetch(
+            `/api/spotify/recommendations-playlist?seed_artist=${artistId}&seed_genres=${genreData.genres}&seed_track=${trackid}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${session.accessToken}`,
+              },
+            }
+          );
+
+          const recommendationsData = await recommendationsRes.json();
+
+          if (!recommendationsRes.ok) {
+            setRecommendations([]);
+            return;
+          }
+          setRecommendations(recommendationsData.data.tracks.items);
         } else {
-          setErrorMessage(data.message || "Something went wrong");
+          setErrorMessage(data.message);
         }
       } catch (error) {
+        console.error("Failed to fetch track", error);
         setErrorMessage("Failed to fetch track");
-        console.log(error);
       } finally {
-        setIsLoading(false); // Ini tetap dijalankan, baik sukses maupun error
+        setIsLoading(false);
       }
-    };
+    }, 5000); // cek setiap 5 detik
 
-    fetchTrack();
-
-    const interval = setInterval(fetchTrack, 10000);
     return () => clearInterval(interval);
-  }, [session, status]);
+  }, [session?.accessToken, status, track?.item?.id, genres, recommendations]);
 
   return (
     <>
@@ -114,16 +116,11 @@ export default function NowPlaying() {
           ) : (
             <>
               <PlayingTracks track={track} />
-              <Recommendations
-                artistId={artistId}
-                trackId={trackId}
-                genres={genres}
-                accessToken={session?.accessToken}
-              />
             </>
           )}
         </div>
       )}
+      <BentoPlaylist recommendations={recommendations} />
     </>
   );
 }

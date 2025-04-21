@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { BentoGrid, BentoGridItem } from "../ui/bento-grid";
 import Image from "next/image";
@@ -5,11 +7,11 @@ import { motion } from "framer-motion";
 import { zoomInUp } from "@/utils/FramerMotionStyle";
 import { SpotifyRecommendationTrack } from "@/types/spotify";
 
-type BentoProjectProps = {
+type BentoPlaylistProps = {
   recommendations: SpotifyRecommendationTrack[];
 };
 
-export const BentoProject: React.FC<BentoProjectProps> = ({
+export const BentoPlaylist: React.FC<BentoPlaylistProps> = ({
   recommendations,
 }) => {
   const [visibleItems, setVisibleItems] = useState(5);
