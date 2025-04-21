@@ -17,8 +17,8 @@ export default function NowPlaying() {
   const [recommendations, setRecommendations] = useState<
     SpotifyRecommendationTrack[]
   >([]);
-  console.log(errorMessage);
 
+  console.log(track?.is_playing);
   useEffect(() => {
     if (status !== "authenticated" || !session?.accessToken) return;
 
@@ -31,6 +31,12 @@ export default function NowPlaying() {
         });
 
         const data = await res.json();
+        setTrack(data as SpotifyTrack);
+
+        if (!data?.is_playing) {
+          setRecommendations([]);
+          return;
+        }
 
         if (res.ok && data?.item?.id !== track?.item?.id) {
           const artistId = data.item.artists[0].id;
@@ -47,7 +53,6 @@ export default function NowPlaying() {
 
           const genreData = await genreRes.json();
           setGenres(genreData.genres);
-          setTrack(data as SpotifyTrack);
 
           const recommendationsRes = await fetch(
             `/api/spotify/recommendations-playlist?seed_artist=${artistId}&seed_genres=${genreData.genres}&seed_track=${trackid}`,
